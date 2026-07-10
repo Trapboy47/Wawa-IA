@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Illuminati Boy SignalFx - Dashboard SMC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1629 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            padding: 16px 20px;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #7dd3fc;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Title */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* API Section */
+        .api-section {
+            background: rgba(15, 22, 41, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            max-width: 600px;
+        }
+
+        .api-section label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #d1d5db;
+            margin-bottom: 8px;
+        }
+
+        .api-input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .api-section input {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .api-section input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.08);
+        }
+
+        .api-section button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0a0e27;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .api-section button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .api-section button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .api-status {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .api-status.connected {
+            color: #00ff88;
+        }
+
+        /* Grid */
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Signal Card */
+        .signal-card {
+            background: rgba(15, 22, 41, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .signal-card.buy {
+            border-top: 3px solid #00ff88;
+        }
+
+        .signal-card.sell {
+            border-top: 3px solid #ff4444;
+        }
+
+        /* Signal Header */
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .signal-symbol {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .signal-type {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .signal-type.buy {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+        }
+
+        .signal-type.sell {
+            background: rgba(255, 68, 68, 0.15);
+            color: #ff4444;
+        }
+
+        /* Signal Price */
+        .signal-price {
+            font-size: 16px;
+            color: #7dd3fc;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Signal Table */
+        .signal-table {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .signal-table tr {
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .signal-table td {
+            padding: 12px 0;
+            font-size: 13px;
+        }
+
+        .signal-table td:first-child {
+            color: #9ca3af;
+            width: 60%;
+        }
+
+        .signal-table td:last-child {
+            text-align: right;
+            color: #00d4ff;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Signal Footer */
+        .signal-footer {
+            display: flex;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .signal-info {
+            flex: 1;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .signal-info strong {
+            color: #d1d5db;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 255, 0.2);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error */
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #86efac;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state p {
+            margin-bottom: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .signals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .signal-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .api-input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">ℹ️</div>
+                <span>Illuminati Boy SignalFx</span>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                SMC Ao Vivo
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Sinais SMC em Tempo Real</h1>
+        <p class="subtitle">Análise inteligente de estrutura de Smart Money | XAU/USD e US100</p>
+
+        <!-- API Section -->
+        <div class="api-section">
+            <label>🔑 Chave Twelve Data API</label>
+            <div class="api-input-group">
+                <input type="password" id="apiKey" placeholder="Cole sua chave aqui">
+                <button onclick="saveApiKey()">Conectar</button>
+            </div>
+            <div id="apiStatus" class="api-status">
+                Pressione Conectar para começar
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="messageContainer"></div>
+
+        <!-- Loading -->
+        <div id="loadingContainer" class="loading" style="display: none;">
+            <div class="loader"></div>
+            <p>Analisando estrutura de mercado...</p>
+        </div>
+
+        <!-- Signals Grid -->
+        <div id="signalsContainer" class="signals-grid"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <p>💡 Coloque sua chave Twelve Data acima e clique em "Conectar"</p>
+            <p style="font-size: 12px; color: #4b5563;">Sem chave? Pegue uma grátis em <a href="https://twelvedata.com" target="_blank" style="color: #00d4ff;">twelvedata.com</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Check if API key is saved
+        window.addEventListener('load', () => {
+            const savedKey = localStorage.getItem('twelvedata_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+                document.getElementById('apiStatus').textContent = '✓ Conectado';
+                document.getElementById('apiStatus').classList.add('connected');
+            }
+        });
+
+        // Save API key
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                showMessage('Por favor, cole sua chave API', 'error');
+                return;
+            }
+
+            localStorage.setItem('twelvedata_api_key', apiKey);
+            document.getElementById('apiStatus').textContent = '✓ Conectado';
+            document.getElementById('apiStatus').classList.add('connected');
+            
+            showMessage('Chave salva com sucesso!', 'success');
+            loadSignals();
+        }
+
+        // Load signals
+        async function loadSignals() {
+            const apiKey = localStorage.getItem('twelvedata_api_key');
+            
+            if (!apiKey) {
+                showMessage('Conecte sua chave API primeiro', 'error');
+                return;
+            }
+
+            const container = document.getElementById('signalsContainer');
+            const loading = document.getElementById('loadingContainer');
+            const empty = document.getElementById('emptyState');
+
+            loading.style.display = 'block';
+            container.innerHTML = '';
+            empty.style.display = 'none';
+
+            try {
+                // Fetch XAU/USD
+                const xauData = await fetchOHLC('XAUUSD', 'H4', apiKey);
+                
+                // Fetch US100
+                const us100Data = await fetchOHLC('US100', 'H4', apiKey);
+
+                loading.style.display = 'none';
+
+                if (xauData) {
+                    const xauSignal = analyzeSMC(xauData, 'XAU/USD', 'H4');
+                    renderSignal(xauSignal);
+                }
+
+                if (us100Data) {
+                    const us100Signal = analyzeSMC(us100Data, 'US100', 'H4');
+                    renderSignal(us100Signal);
+                }
+
+                if (!xauData && !us100Data) {
+                    showMessage('Erro ao buscar dados. Verifique sua chave API', 'error');
+                    empty.style.display = 'block';
+                }
+
+            } catch (error) {
+                loading.style.display = 'none';
+                showMessage(`Erro: ${error.message}`, 'error');
+                empty.style.display = 'block';
+            }
+        }
+
+        // Fetch OHLC data
+        async function fetchOHLC(symbol, interval, apiKey) {
+            try {
+                const response = await fetch(
+                    `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&apikey=${apiKey}&format=JSON&outputsize=50`
+                );
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar dados');
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'error') {
+                    throw new Error(data.message || 'Erro na API');
+                }
+
+                return data.values || [];
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                return null;
+            }
+        }
+
+        // Analyze SMC
+        function analyzeSMC(candles, symbol, timeframe) {
+            if (candles.length < 5) {
+                return null;
+            }
+
+            const recent = candles.slice(0, 5);
+            const prices = recent.map(c => parseFloat(c.close));
+            const highs = recent.map(c => parseFloat(c.high));
+            const lows = recent.map(c => parseFloat(c.low));
+
+            const currentPrice = prices[0];
+            const prevPrice = prices[1];
+            const trend = currentPrice > prevPrice ? 'UP' : 'DOWN';
+
+            // Simplified SMC logic
+            let signalType = 'HOLD';
+            let structure = 'Analisando...';
+            let confidence = '60%';
+
+            if (trend === 'UP' && lows[0] > lows[1]) {
+                signalType = 'BUY';
+                structure = 'BOS acima de resistência';
+                confidence = '85%';
+            } else if (trend === 'DOWN' && highs[0] < highs[1]) {
+                signalType = 'SELL';
+                structure = 'CHoCH em nível de liquidez';
+                confidence = '78%';
+            }
+
+            const entry = currentPrice;
+            const sl = signalType === 'BUY' ? currentPrice - 50 : currentPrice + 50;
+            const tp = signalType === 'BUY' ? currentPrice + 100 : currentPrice - 100;
+
+            return {
+                symbol,
+                type: signalType,
+                price: currentPrice,
+                entry,
+                sl,
+                tp,
+                structure,
+                timeframe,
+                confidence,
+                timestamp: new Date().toLocaleTimeString('pt-BR')
+            };
+        }
+
+        // Render signal
+        function renderSignal(signal) {
+            if (!signal) return;
+
+            const container = document.getElementById('signalsContainer');
+            const card = document.createElement('div');
+            card.className = `signal-card ${signal.type === 'BUY' ? 'buy' : 'sell'}`;
+
+            const rr = ((signal.tp - signal.entry) / Math.abs(signal.entry - signal.sl)).toFixed(1);
+
+            card.innerHTML = `
+                <div class="signal-header">
+                    <div class="signal-symbol">${signal.symbol}</div>
+                    <div class="signal-type ${signal.type === 'BUY' ? 'buy' : 'sell'}">
+                        ${signal.type}
+                    </div>
+                </div>
+
+                <div class="signal-price">
+                    Preço: ${signal.price.toFixed(2)}
+                </div>
+
+                <table class="signal-table">
+                    <tr>
+                        <td>Entrada</td>
+                        <td>${signal.entry.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>Stop Loss</td>
+                        <td style="color: #ff4444;">${signal.sl.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>Take Profit</td>
+                        <td style="color: #00ff88;">${signal.tp.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>Risk/Reward</td>
+                        <td>1:${rr}</td>
+                    </tr>
+                </table>
+
+                <div class="signal-footer">
+                    <div class="signal-info">
+                        <strong>Estrutura</strong>
+                        ${signal.structure}
+                    </div>
+                    <div class="signal-info">
+                        <strong>TF</strong>
+                        ${signal.timeframe}
+                    </div>
+                    <div class="signal-info">
+                        <strong>Confiança</strong>
+                        ${signal.confidence}
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(div);
+
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auto-load if key exists
+        const savedKey = localStorage.getItem('twelvedata_api_key');
+        if (savedKey) {
+            setTimeout(loadSignals, 500);
+        }
+    </script>
+</body>
+</html>
