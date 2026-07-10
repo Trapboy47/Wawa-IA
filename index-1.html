@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wawa IA - Sinais SMC ao Vivo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1629 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        header {
+            padding: 16px 20px;
+            background: rgba(10, 14, 39, 0.8);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a0e27;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 60px);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 24px;
+            padding: 12px 20px;
+            margin-bottom: 32px;
+            font-size: 13px;
+            color: #7dd3fc;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            font-size: 56px;
+            margin: 12px 0;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #9ca3af;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        .pills {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+        .pill {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 24px;
+            padding: 10px 24px;
+            color: #00d4ff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .cta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #0a0e27;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 212, 255, 0.4);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+        }
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 36px; }
+            .highlight { font-size: 42px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">W</div>
+            <span>Wawa IA</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            Inteligência Artificial para Trading • Análise em Tempo Real
+        </div>
+
+        <h1>Opere com</h1>
+        <div class="highlight">Preço de IA</div>
+
+        <p class="subtitle">
+            Análises técnicas, fundamentalistas e de timing avançadas.<br>
+            <strong>Saiba o que operar, quando entrar e onde sair.</strong><br>
+            Decisões baseadas em dados, não em emoção.
+        </p>
+
+        <div class="pills">
+            <div class="pill">Forex</div>
+            <div class="pill">Crypto</div>
+        </div>
+
+        <div class="cta">
+            <a href="dashboard.html" class="btn btn-primary">Começar</a>
+            <a href="auth.html" class="btn btn-secondary">Ver Demonstração</a>
+        </div>
+    </div>
+</body>
+</html>
