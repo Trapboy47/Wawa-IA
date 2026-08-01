@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wawa IA - Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#00c6ff">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -312,18 +315,70 @@
             }
         }
 
-        function analyzeSMC(candles, symbol) {
-            const recent = candles.slice(0, 5);
-            const prices = recent.map(c => parseFloat(c.close));
-            const trend = prices[0] > prices[1] ? 'UP' : 'DOWN';
+        function findSwings(candles, lookback = 2) {
+            const highs = [], lows = [];
+            for (let i = lookback; i < candles.length - lookback; i++) {
+                let isHigh = true, isLow = true;
+                for (let j = 1; j <= lookback; j++) {
+                    if (candles[i].high <= candles[i - j].high || candles[i].high <= candles[i + j].high) isHigh = false;
+                    if (candles[i].low >= candles[i - j].low || candles[i].low >= candles[i + j].low) isLow = false;
+                }
+                if (isHigh) highs.push({ index: i, price: candles[i].high });
+                if (isLow) lows.push({ index: i, price: candles[i].low });
+            }
+            return { highs, lows };
+        }
 
-            const type = trend === 'UP' ? 'BUY' : 'SELL';
-            const price = prices[0];
-            const entry = price;
-            const sl = type === 'BUY' ? price - 50 : price + 50;
-            const tp = type === 'BUY' ? price + 100 : price - 100;
+        function analyzeSMC(rawCandles, symbol) {
+            // Twelve Data retorna do mais recente para o mais antigo; inverte para ordem cronológica
+            const candles = rawCandles.slice(0, 50).map(c => ({
+                open: parseFloat(c.open),
+                high: parseFloat(c.high),
+                low: parseFloat(c.low),
+                close: parseFloat(c.close)
+            })).reverse();
 
-            return { symbol, type, price, entry, sl, tp };
+            const { highs, lows } = findSwings(candles, 2);
+            const currentPrice = candles[candles.length - 1].close;
+
+            // Estrutura de mercado: compara os 2 últimos swing highs e lows para achar BOS/CHoCH
+            let bias = 'NEUTRAL';
+            if (highs.length >= 2 && lows.length >= 2) {
+                const lastHigh = highs[highs.length - 1].price;
+                const prevHigh = highs[highs.length - 2].price;
+                const lastLow = lows[lows.length - 1].price;
+                const prevLow = lows[lows.length - 2].price;
+
+                if (lastHigh > prevHigh && lastLow > prevLow) bias = 'BULLISH';
+                else if (lastHigh < prevHigh && lastLow < prevLow) bias = 'BEARISH';
+                else bias = currentPrice > prevHigh ? 'BULLISH' : currentPrice < prevLow ? 'BEARISH' : 'NEUTRAL';
+            }
+
+            const type = bias === 'BEARISH' ? 'SELL' : 'BUY';
+
+            // Order block: última vela oposta antes do movimento impulsivo mais recente
+            let orderBlock = null;
+            for (let i = candles.length - 2; i >= Math.max(0, candles.length - 15); i--) {
+                if (type === 'BUY' && candles[i].close < candles[i].open) { orderBlock = candles[i]; break; }
+                if (type === 'SELL' && candles[i].close > candles[i].open) { orderBlock = candles[i]; break; }
+            }
+
+            const entry = currentPrice;
+            let sl, tp;
+
+            if (type === 'BUY') {
+                sl = orderBlock ? orderBlock.low : (lows.length ? lows[lows.length - 1].price : entry * 0.995);
+                const risk = entry - sl;
+                const liquidity = highs.length ? highs[highs.length - 1].price : entry + risk * 2;
+                tp = Math.max(liquidity, entry + risk * 2);
+            } else {
+                sl = orderBlock ? orderBlock.high : (highs.length ? highs[highs.length - 1].price : entry * 1.005);
+                const risk = sl - entry;
+                const liquidity = lows.length ? lows[lows.length - 1].price : entry - risk * 2;
+                tp = Math.min(liquidity, entry - risk * 2);
+            }
+
+            return { symbol, type, price: currentPrice, entry, sl, tp };
         }
 
         function renderSignal(signal) {
